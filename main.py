@@ -60,75 +60,7 @@ def log_debug(message):
     except:
         pass
 
-# Store disabled trackpad device IDs
-disabled_trackpad_devices = []
 
-def disable_trackpad():
-    """Completely disables the trackpad hardware device using PowerShell."""
-    log_debug("Attempting to disable trackpad device...")
-    try:
-        # PowerShell command to find and disable touchpad devices
-        # Common touchpad device classes: Mouse, HIDClass with touchpad in friendly name
-        ps_script = """
-        $touchpads = Get-PnpDevice | Where-Object {
-            ($_.Class -eq 'Mouse' -and $_.FriendlyName -match 'Touchpad|TouchPad|Trackpad|TrackPad|Synaptics|Elan|Precision') -or
-            ($_.Class -eq 'HIDClass' -and $_.FriendlyName -match 'Touchpad|TouchPad|Trackpad|TrackPad|HID-compliant touch pad')
-        } | Where-Object {$_.Status -eq 'OK'}
-        
-        foreach ($device in $touchpads) {
-            Write-Output $device.InstanceId
-            Disable-PnpDevice -InstanceId $device.InstanceId -Confirm:$false -ErrorAction SilentlyContinue
-        }
-        """
-        
-        result = subprocess.run(
-            ["powershell", "-ExecutionPolicy", "Bypass", "-Command", ps_script],
-            capture_output=True,
-            text=True,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
-        
-        if result.stdout.strip():
-            device_ids = result.stdout.strip().split('\n')
-            disabled_trackpad_devices.extend([d.strip() for d in device_ids if d.strip()])
-            log_debug(f"Disabled trackpad devices: {disabled_trackpad_devices}")
-        else:
-            log_debug("No trackpad devices found to disable")
-            
-        if result.stderr:
-            log_debug(f"PowerShell stderr: {result.stderr}")
-            
-    except Exception as e:
-        log_debug(f"Failed to disable trackpad: {e}")
-
-def restore_trackpad():
-    """Re-enables previously disabled trackpad devices."""
-    log_debug("Attempting to restore trackpad device...")
-    try:
-        if not disabled_trackpad_devices:
-            log_debug("No trackpad devices to restore")
-            return
-            
-        for device_id in disabled_trackpad_devices:
-            ps_script = f'Enable-PnpDevice -InstanceId "{device_id}" -Confirm:$false -ErrorAction SilentlyContinue'
-            
-            result = subprocess.run(
-                ["powershell", "-ExecutionPolicy", "Bypass", "-Command", ps_script],
-                capture_output=True,
-                text=True,
-                creationflags=subprocess.CREATE_NO_WINDOW
-            )
-            
-            log_debug(f"Restored trackpad device: {device_id}")
-            
-            if result.stderr:
-                log_debug(f"PowerShell stderr: {result.stderr}")
-        
-        disabled_trackpad_devices.clear()
-        log_debug("Successfully restored all trackpad devices")
-        
-    except Exception as e:
-        log_debug(f"Failed to restore trackpad: {e}")
 
 def add_to_startup():
     """Adds the application to the Windows Registry for startup and cleans up old startup folder methods."""
@@ -191,9 +123,6 @@ def on_key_event(e):
             except:
                 pass
             
-            # Restore trackpad before exit
-            restore_trackpad()
-            
             # Optional: Remove from startup on successful unlock? 
             # User requirement said "when pc restarts this app runs again", 
             # but usually "winning" the game should stop it. 
@@ -247,20 +176,17 @@ def start_app():
     # 1. Add to startup (Ensure persistence)
     add_to_startup()
     
-    # 2. Disable trackpad completely
-    disable_trackpad()
-    
-    # 3. Block inputs
+    # 2. Block inputs
     block_interactions()
     
-    # 4. Schedule shutdown (Backup timer)
+    # 3. Schedule shutdown (Backup timer)
     global shutdown_job
     shutdown_job = root.after(SHUTDOWN_DELAY_MS, force_shutdown)
     
-    # 5. Fake Percentage Counter
+    # 4. Fake Percentage Counter
     update_percentage(0)
 
-    # 6. Arm the interaction trigger after a short grace period (e.g. 2s) to allow window to settle
+    # 5. Arm the interaction trigger after a short grace period (e.g. 2s) to allow window to settle
     root.after(2000, arm_triggers)
 
 def arm_triggers():

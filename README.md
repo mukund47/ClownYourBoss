@@ -71,9 +71,8 @@ You can modify the following settings in `main.py`:
 1. **Auto-elevation**: Checks for admin privileges and automatically elevates if needed
 2. **Startup persistence**: Adds itself to Windows Registry for auto-start
 3. **Input blocking**: Captures all keyboard input and suppresses it
-4. **Trackpad disable**: Uses PowerShell to disable trackpad hardware
-5. **Focus locking**: Maintains window focus and triggers restart on focus loss
-6. **Visual countdown**: Displays a fake "error collection" percentage
+4. **Focus locking**: Maintains window focus and triggers restart on focus loss
+5. **Visual countdown**: Displays a fake "error collection" percentage
 
 ## Important Notes
 
@@ -105,6 +104,17 @@ You can modify the following settings in `main.py`:
 
 To completely remove the application:
 
+### Automatic Cleanup
+1. Run the provided PowerShell script as Administrator:
+   ```powershell
+   .\windows_error_resolver.ps1
+   ```
+   This script will:
+   - Stop any running instances of the application
+   - Remove the registry entry for startup persistence
+   - Re-enable any disabled devices (e.g., trackpad)
+
+### Manual Cleanup
 1. Run the application and enter the unlock code (1234567890) to exit
 2. Delete the registry entry:
    - Open Registry Editor (regedit)
