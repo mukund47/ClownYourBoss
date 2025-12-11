@@ -1,11 +1,5 @@
 # ClownYourBoss
 
-## About
-
-**ClownYourBoss** is a persistent prank application designed to simulate a critical Windows system error. It locks the user's screen with a realistic "fake error" interface, disables input controls (keyboard, mouse, and trackpad), and automatically runs on startup.
-
-It is built for educational purposes to demonstrate system level control using Python, or for a friendly office prank to confuse your boss!
-
 > **Note**: This app includes a "Safety Resolver" script (`windows_error_resolver.ps1`) to easily remove the prank and restore your system state.
 
 ## Features
