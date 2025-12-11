@@ -104,6 +104,11 @@ You can modify the following settings in `main.py`:
 
 To completely remove the application:
 
+
+> [!WARNING]
+> **Trackpad Issues**: This application disables the trackpad hardware. This might mess up your trackpad gesture settings or leave the trackpad disabled.
+> **To Fix**: Run the `windows_error_resolver.ps1` script as Administrator. It will remove the app, restore your trackpad, and **automatically restart your PC** to apply the fixes.
+
 ### Automatic Cleanup
 1. Run the provided PowerShell script as Administrator:
    ```powershell
