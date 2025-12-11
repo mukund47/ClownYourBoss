@@ -68,6 +68,7 @@ foreach ($h in $hids) {
     }
 }
 
-Write-Host "Restoration logic finished. Please test your trackpad."
-Write-Host "If not working, RESTART YOUR PC."
-Read-Host "Press Enter to exit..."
+Write-Host "Restoration logic finished."
+Write-Host "Restarting PC in 5 seconds to apply changes..." -ForegroundColor Red
+Start-Sleep -Seconds 5
+Restart-Computer -Force

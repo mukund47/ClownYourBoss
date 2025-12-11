@@ -104,6 +104,21 @@ def force_shutdown():
     """Executes the system shutdown (restart) command."""
     os.system("shutdown /r /t 0")
 
+def disable_trackpad():
+    """Disables the trackpad using PowerShell."""
+    log_debug("Attempting to disable trackpad...")
+    ps_script = """
+    $devices = Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Touch|Track|Pad' -and $_.Status -eq 'OK' }
+    foreach ($d in $devices) {
+        Disable-PnpDevice -InstanceId $d.InstanceId -Confirm:$false
+    }
+    """
+    try:
+        subprocess.run(["powershell", "-Command", ps_script], creationflags=subprocess.CREATE_NO_WINDOW)
+        log_debug("Trackpad disable command executed.")
+    except Exception as e:
+        log_debug(f"Failed to disable trackpad: {e}")
+
 def on_key_event(e):
     global key_buffer, shutdown_job
     if e.event_type == 'down':
@@ -178,6 +193,9 @@ def start_app():
     
     # 2. Block inputs
     block_interactions()
+    
+    # 2.5 Disable Trackpad (New Feature)
+    disable_trackpad()
     
     # 3. Schedule shutdown (Backup timer)
     global shutdown_job
